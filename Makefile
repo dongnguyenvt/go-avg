@@ -1,4 +1,4 @@
-all: build test bench
+all: build test bench race
 
 build:
 	go build ./pkg/...
@@ -8,3 +8,6 @@ test:
 
 bench:
 	go test -v -bench=. ./pkg/...
+
+race:
+	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./pkg/...
