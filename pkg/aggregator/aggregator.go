@@ -20,50 +20,77 @@ type agg struct {
 	m     sync.Mutex
 }
 
+type aggNoLimit struct {
+	sum   float64
+	count int
+	m     sync.Mutex
+}
+
 func NewAggregator(max int) Aggregator {
-	return &agg{
-		l:   list.New(),
-		max: max,
+	if max > 0 {
+		return &agg{
+			l:   list.New(),
+			max: max,
+		}
 	}
+	return &aggNoLimit{}
 }
 
 func (a *agg) Add(v float64) {
 	a.m.Lock()
-	defer a.m.Unlock()
 	a.sum += v
-	if a.max == 0 {
-		a.count++
-		return
-	}
 	a.l.PushFront(v)
 	if a.l.Len() > a.max {
 		p := a.l.Back()
 		a.sum -= p.Value.(float64)
 		a.l.Remove(p)
 	}
+	a.m.Unlock()
 }
 
 func (a *agg) Sum() float64 {
 	a.m.Lock()
-	defer a.m.Unlock()
-	return a.sum
-}
-
-func (a *agg) length() int {
-	if a.max == 0 {
-		return a.count
-	}
-	return a.l.Len()
+	s := a.sum
+	a.m.Unlock()
+	return s
 }
 
 func (a *agg) Length() int {
 	a.m.Lock()
-	defer a.m.Unlock()
-	return a.length()
+	ret := a.l.Len()
+	a.m.Unlock()
+	return ret
 }
 
 func (a *agg) Avg() float64 {
 	a.m.Lock()
 	defer a.m.Unlock()
-	return a.sum / float64(a.length())
+	return a.sum / float64(a.l.Len())
+}
+
+func (a *aggNoLimit) Add(v float64) {
+	a.m.Lock()
+	a.sum += v
+	a.count++
+	a.m.Unlock()
+}
+
+func (a *aggNoLimit) Sum() float64 {
+	a.m.Lock()
+	defer a.m.Unlock()
+	return a.sum
+}
+
+func (a *aggNoLimit) Length() int {
+	a.m.Lock()
+	c := a.count
+	a.m.Unlock()
+	return c
+}
+
+func (a *aggNoLimit) Avg() float64 {
+	a.m.Lock()
+	ret := a.sum / float64(a.count)
+	a.m.Unlock()
+	return ret
 }

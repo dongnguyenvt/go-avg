@@ -73,6 +73,43 @@ func TestAggThreadSafe(t *testing.T) {
 	}
 }
 
+func TestAggThreadSafeNoLimit(t *testing.T) {
+	const inputLength = 500
+	const threads = 8
+	a := NewAggregator(0)
+	generate := make([]float64, 0, inputLength*threads)
+	m := sync.Mutex{}
+	wg := sync.WaitGroup{}
+	wg.Add(threads)
+	adding := func() {
+		for i := 0; i < inputLength; i++ {
+			m.Lock()
+			n := rand.Float64() * 100
+			a.Add(n)
+			generate = append(generate, n)
+			m.Unlock()
+		}
+		wg.Done()
+	}
+	for i := 0; i < threads; i++ {
+		go adding()
+	}
+	wg.Wait()
+	var expected float64
+	for _, n := range generate {
+		expected += n
+	}
+	if a.Length() != inputLength*threads {
+		t.Fatalf("expected len %d but got %d", inputLength*threads, a.Length())
+	}
+	if !isEqual(expected, a.Sum()) {
+		t.Fatalf("expected sum %f but got %f", expected, a.Sum())
+	}
+	if !isEqual(expected/(inputLength*threads), a.Avg()) {
+		t.Fatalf("expected avg %f but got %f", expected/(inputLength*threads), a.Avg())
+	}
+}
+
 func TestAggNoLimit(t *testing.T) {
 	const inputLength = 500
 	a := NewAggregator(0)
