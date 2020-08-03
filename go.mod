@@ -1,4 +1,4 @@
-module github.com/dongnguyen/go-avg
+module github.com/dongnguyenvt/go-avg
 
 go 1.11
 
