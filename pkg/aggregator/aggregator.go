@@ -12,18 +12,16 @@ type Aggregator interface {
 	Avg() float64
 }
 
-type agg struct {
-	l     *list.List
-	max   int
+type aggNoLimit struct {
 	sum   float64
 	count int
 	m     sync.Mutex
 }
 
-type aggNoLimit struct {
-	sum   float64
-	count int
-	m     sync.Mutex
+type agg struct {
+	l     *list.List
+	max   int
+	aggNoLimit
 }
 
 func NewAggregator(max int) Aggregator {
@@ -48,13 +46,6 @@ func (a *agg) Add(v float64) {
 	a.m.Unlock()
 }
 
-func (a *agg) Sum() float64 {
-	a.m.Lock()
-	s := a.sum
-	a.m.Unlock()
-	return s
-}
-
 func (a *agg) Length() int {
 	a.m.Lock()
 	ret := a.l.Len()
@@ -64,8 +55,9 @@ func (a *agg) Length() int {
 
 func (a *agg) Avg() float64 {
 	a.m.Lock()
-	defer a.m.Unlock()
-	return a.sum / float64(a.l.Len())
+	ret := a.sum / float64(a.l.Len())
+	a.m.Unlock()
+	return ret
 }
 
 func (a *aggNoLimit) Add(v float64) {
@@ -77,8 +69,9 @@ func (a *aggNoLimit) Add(v float64) {
 
 func (a *aggNoLimit) Sum() float64 {
 	a.m.Lock()
-	defer a.m.Unlock()
-	return a.sum
+	s := a.sum
+	a.m.Unlock()
+	return s
 }
 
 func (a *aggNoLimit) Length() int {
