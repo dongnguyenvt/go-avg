@@ -1,4 +1,4 @@
-all: build test bench race
+all: build test bench race staticcheck
 
 build:
 	go build ./pkg/...
@@ -11,3 +11,7 @@ bench:
 
 race:
 	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./pkg/...
+
+staticcheck:
+	GOBIN="$$(pwd)/bin" go install honnef.co/go/tools/cmd/staticcheck
+	./bin/staticcheck ./pkg/...
