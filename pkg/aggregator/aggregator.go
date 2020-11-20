@@ -2,6 +2,7 @@ package aggregator
 
 import (
 	"container/list"
+	"math"
 	"sync"
 )
 
@@ -35,6 +36,9 @@ func NewAggregator(max int) Aggregator {
 }
 
 func (a *agg) Add(v float64) (val float64, evicted bool) {
+	if math.IsInf(v, 0) || math.IsNaN(v) {
+		return
+	}
 	a.m.Lock()
 	a.sum += v
 	a.l.PushFront(v)
@@ -67,6 +71,9 @@ func (a *agg) Avg() float64 {
 }
 
 func (a *aggNoLimit) Add(v float64) (float64, bool) {
+	if math.IsInf(v, 0) || math.IsNaN(v) {
+		return 0, false
+	}
 	a.m.Lock()
 	a.sum += v
 	a.count++

@@ -133,6 +133,31 @@ func TestAggNoLimit(t *testing.T) {
 	}
 }
 
+func TestAggMalformedFloat(t *testing.T) {
+	const length = 50
+	a := NewAggregator(length)
+	a.Add(math.NaN())
+	if a.Length() != 0 {
+		t.Fatalf("expected len is 0")
+	}
+	a.Add(math.Inf(1))
+	a.Add(math.Inf(-1))
+	if a.Length() != 0 {
+		t.Fatalf("expected len is 0")
+	}
+
+	a = NewAggregator(0)
+	a.Add(math.NaN())
+	if a.Length() != 0 {
+		t.Fatalf("expected len is 0")
+	}
+	a.Add(math.Inf(1))
+	a.Add(math.Inf(-1))
+	if a.Length() != 0 {
+		t.Fatalf("expected len is 0")
+	}
+}
+
 func BenchmarkAdd(b *testing.B) {
 	a := NewAggregator(500)
 	for i := 0; i < b.N; i++ {
