@@ -13,5 +13,5 @@ race:
 	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./pkg/...
 
 staticcheck:
-	go get honnef.co/go/tools/cmd/staticcheck@v0.0.1-2020.1.5
+	go install honnef.co/go/tools/cmd/staticcheck
 	staticcheck ./pkg/...
