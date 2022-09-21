@@ -1,9 +1,10 @@
-package aggregator
+package avg
 
 import (
-	"container/list"
 	"math"
 	"sync"
+
+	list "github.com/bahlo/generic-list-go"
 )
 
 type Aggregator interface {
@@ -20,7 +21,7 @@ type aggNoLimit struct {
 }
 
 type agg struct {
-	l   *list.List
+	l   *list.List[float64]
 	max int
 	aggNoLimit
 }
@@ -28,7 +29,7 @@ type agg struct {
 func NewAggregator(max int) Aggregator {
 	if max > 0 {
 		return &agg{
-			l:   list.New(),
+			l:   list.New[float64](),
 			max: max,
 		}
 	}
@@ -44,7 +45,7 @@ func (a *agg) Add(v float64) (val float64, evicted bool) {
 	a.l.PushFront(v)
 	if a.l.Len() > a.max {
 		p := a.l.Back()
-		val = p.Value.(float64)
+		val = p.Value
 		evicted = true
 		a.sum -= val
 		a.l.Remove(p)

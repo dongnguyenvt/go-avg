@@ -1,4 +1,4 @@
-package aggregator
+package avg
 
 import (
 	"math"
