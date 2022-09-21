@@ -1,3 +1,3 @@
-[![Build Status](https://travis-ci.com/dongnguyenvt/go-avg.svg?branch=master)](https://travis-ci.com/dongnguyenvt/go-avg) [![codecov](https://codecov.io/gh/dongnguyenvt/go-avg/branch/master/graph/badge.svg)](https://codecov.io/gh/dongnguyenvt/go-avg)
+[![Build Status](https://github.com/dongnguyenvt/go-avg/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/dongnguyenvt/go-avg/actions/workflows/go.yml)
 # go-avg
 Compute running average value
